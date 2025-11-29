@@ -7,11 +7,11 @@ import httpx
 import os
 load_dotenv()
 
-class ContactForm(BaseModel):
-    name : str
-    email : EmailStr
-    subject : str
-    message : str
+# class ContactForm(BaseModel):
+#     name : str
+#     email : EmailStr
+#     subject : str
+#     message : str
 
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
