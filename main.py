@@ -2,9 +2,16 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import EmailStr,BaseModel
+import requests
 import os
 load_dotenv()
 
+class ContactForm(BaseModel):
+    name : str
+    email : EmailStr
+    subject : str
+    message : str
 
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
@@ -47,3 +54,20 @@ async def Languages():
     # print(data)
     return data
 
+
+
+@app.post("/sendmail")
+async def send(form : ContactForm):
+
+    response = requests.post(
+        f"https://api.mailgun.net/v3/{os.getenv('MAILGUN_DOMAIN')}/messages",
+        auth=("api", os.getenv("MAILGUN_API_KEY")),
+        data={
+            "from": f"{form.email}",
+            "to": "Alvin <alvingeorge_@outlook.com>",  
+            "subject": f"{form.subject}",
+            "text": f"📩 You got a new message!\n\nName : {form.name}\n\nFrom: {form.email}\n\nMessage: \n\n{form.message}"
+        }
+    )
+
+    return {"status": response.status_code, "details": response.text}
