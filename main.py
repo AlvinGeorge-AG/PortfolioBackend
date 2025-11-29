@@ -17,11 +17,11 @@ USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 URL = f"mongodb+srv://{USERNAME}:{PASSWORD}@portfoliocluster.pcgilwr.mongodb.net/?appName=PortfolioCluster"
 
-MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
-MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+# MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+# MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
 
-if MAILGUN_API_KEY is None:
-    raise RuntimeError("MAILGUN_API_KEY is not set in environment")
+# if MAILGUN_API_KEY is None:
+#     raise RuntimeError("MAILGUN_API_KEY is not set in environment")
 
 try:
     client = AsyncIOMotorClient(URL)
@@ -62,20 +62,20 @@ async def Languages():
 
 
 
-@app.post("/sendmail")
-async def send(form: ContactForm):
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
-            auth=("api", MAILGUN_API_KEY or ""),
-            data={
-                "from": form.email,
-                "to": "Alvin <alvingeorge_@outlook.com>",
-                "subject": form.subject,
-                "text": f"📩 You got a new message!\n\nName : {form.name}\n\nFrom: {form.email}\n\nMessage:\n{form.message}"
-            }
-        )
-    return {"status": response.status_code, "details": response.text}
+# @app.post("/sendmail")
+# async def send(form: ContactForm):
+#     async with httpx.AsyncClient() as client:
+#         response = await client.post(
+#             f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+#             auth=("api", MAILGUN_API_KEY or ""),
+#             data={
+#                 "from": form.email,
+#                 "to": "Alvin <alvingeorge_@outlook.com>",
+#                 "subject": form.subject,
+#                 "text": f"📩 You got a new message!\n\nName : {form.name}\n\nFrom: {form.email}\n\nMessage:\n{form.message}"
+#             }
+#         )
+#     return {"status": response.status_code, "details": response.text}
 
 
-handler = app
+# handler = app
