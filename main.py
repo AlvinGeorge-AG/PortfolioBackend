@@ -61,7 +61,7 @@ async def send(form : ContactForm):
 
     response = requests.post(
         f"https://api.mailgun.net/v3/{os.getenv('MAILGUN_DOMAIN')}/messages",
-        auth=("api", os.getenv("MAILGUN_API_KEY")),
+        auth=("api", os.getenv("MAILGUN_API_KEY")), # pyright: ignore[reportArgumentType]
         data={
             "from": f"{form.email}",
             "to": "Alvin <alvingeorge_@outlook.com>",  
