@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import EmailStr,BaseModel
-import requests
+import httpx
 import os
 load_dotenv()
 
@@ -63,17 +63,19 @@ async def Languages():
 
 
 @app.post("/sendmail")
-async def send(form : ContactForm):
-
-    response = requests.post(
-        f"https://api.mailgun.net/v3/{os.getenv('MAILGUN_DOMAIN')}/messages",
-        auth=("api", str(MAILGUN_API_KEY)),
-        data={
-            "from": f"{form.email}",
-            "to": "Alvin <alvingeorge_@outlook.com>",  
-            "subject": f"{form.subject}",
-            "text": f"📩 You got a new message!\n\nName : {form.name}\n\nFrom: {form.email}\n\nMessage: \n\n{form.message}"
-        }
-    )
-
+async def send(form: ContactForm):
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+            auth=("api", str(MAILGUN_API_KEY)),
+            data={
+                "from": form.email,
+                "to": "Alvin <alvingeorge_@outlook.com>",
+                "subject": form.subject,
+                "text": f"📩 You got a new message!\n\nName : {form.name}\n\nFrom: {form.email}\n\nMessage:\n{form.message}"
+            }
+        )
     return {"status": response.status_code, "details": response.text}
+
+
+handler = app
