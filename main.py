@@ -17,6 +17,12 @@ USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 URL = f"mongodb+srv://{USERNAME}:{PASSWORD}@portfoliocluster.pcgilwr.mongodb.net/?appName=PortfolioCluster"
 
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+
+if MAILGUN_API_KEY is None:
+    raise RuntimeError("MAILGUN_API_KEY is not set in environment")
+
 try:
     client = AsyncIOMotorClient(URL)
     print("Connected To MongoDB!!")
@@ -48,7 +54,7 @@ def home():
 
 @app.get("/languages")
 async def Languages():
-    data = await lang.find().to_list()
+    data = await lang.find().to_list(100)
     for doc in data:
         doc["_id"] = str(doc["_id"])
     # print(data)
@@ -61,7 +67,7 @@ async def send(form : ContactForm):
 
     response = requests.post(
         f"https://api.mailgun.net/v3/{os.getenv('MAILGUN_DOMAIN')}/messages",
-        auth=("api", os.getenv("MAILGUN_API_KEY")), # pyright: ignore[reportArgumentType]
+        auth=("api", str(MAILGUN_API_KEY)),
         data={
             "from": f"{form.email}",
             "to": "Alvin <alvingeorge_@outlook.com>",  
