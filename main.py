@@ -67,7 +67,7 @@ async def send(form: ContactForm):
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
-            auth=("api", str(MAILGUN_API_KEY)),
+            auth=("api", MAILGUN_API_KEY or ""),
             data={
                 "from": form.email,
                 "to": "Alvin <alvingeorge_@outlook.com>",
