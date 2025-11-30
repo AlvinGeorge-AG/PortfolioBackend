@@ -21,7 +21,8 @@ except Exception as e:
 
 db = client["portfolioDB"]
 
-lang = db["languages"]
+languages = db["languages"]
+projects = db["projects"]
 
 
 app = FastAPI(
@@ -51,7 +52,7 @@ def home():
 
 @app.get("/languages")
 async def Languages():
-    data = await lang.find().to_list()
+    data = await languages.find().to_list()
     for doc in data:
         doc["_id"] = str(doc["_id"])
     # print(data)
@@ -71,9 +72,16 @@ async def send_mail(form: ContactForm):
                 "text": f"📩 New message alert!\n\nName: {form.name}\nFrom: {form.email}\n\nMessage:\n{form.message}"
             }
         )
-        print(response.text)
+        #print(response.text)
     return {"status": response.status_code, "details": response.text}
 
 
+@app.get("/projects")
+async def Projects():
+    data = await projects.find().to_list()
+    for project in data:
+        project["_id"] = str(project["_id"])
+        #print(data)
+    return data
 
 
