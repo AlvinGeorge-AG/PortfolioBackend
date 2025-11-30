@@ -2,12 +2,15 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-import os
+from pydantic import BaseModel, EmailStr
+import os , httpx
 load_dotenv()
 
 
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
+MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 URL = f"mongodb+srv://{USERNAME}:{PASSWORD}@portfoliocluster.pcgilwr.mongodb.net/?appName=PortfolioCluster"
 
 try:
@@ -35,6 +38,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class ContactForm(BaseModel):
+    name: str
+    email: EmailStr
+    subject: str
+    message: str
+
 @app.get("/")
 def home():
     return {"hi":"Wow Im Cooking!!"}
@@ -46,4 +56,24 @@ async def Languages():
         doc["_id"] = str(doc["_id"])
     # print(data)
     return data
+
+
+@app.post("/sendmail")
+async def send_mail(form: ContactForm):
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+            auth=("api", MAILGUN_API_KEY or ""),
+            data={
+                "from": f"Portfolio Contact Form <postmaster@{MAILGUN_DOMAIN}>", 
+                "to":"alvingeorge_@outlook.com",
+                "subject": form.subject,
+                "text": f"📩 New message alert!\n\nName: {form.name}\nFrom: {form.email}\n\nMessage:\n{form.message}"
+            }
+        )
+        print(response.text)
+    return {"status": response.status_code, "details": response.text}
+
+
+
 
